@@ -1,6 +1,6 @@
 import logging
 from odd_contract.models import DataEntity
-from typing import Dict
+from typing import Iterable
 from mappers.oddrn import generate_experiment_oddrn, generate_run_oddrn
 
 KUBEFLOW_STORAGE_STATE = {
@@ -10,7 +10,7 @@ KUBEFLOW_STORAGE_STATE = {
 }
 
 
-def map_runs(host: str, run: Dict) -> DataEntity:
+def map_runs(host: str, run: Iterable) -> DataEntity:
     """
     Raw run example:
         {  'created_at': datetime.datetime(2021, 3, 11, 17, 21, 44, tzinfo=tzutc()),

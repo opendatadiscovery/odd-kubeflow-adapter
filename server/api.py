@@ -9,14 +9,18 @@ class ApiGetter:
     __PIPELINES = []
     __RUNS = []
 
-    def __init__(self, host: str, cookies: str, namespace: str) -> None:
-        self.__namespace = namespace
-        self.__cookies = cookies
-        if self.__cookies:
-            self.__client = kfp.Client(host=self.__host, cookies=self.__cookies)
-            self.__host = f'https://{host}/pipeline'
-        self.__client = kfp.Client(host=self.__host)
-        self.__host = f'{host}/pipeline'
+    def __init__(self, host: str, namespace: str, cookies: str = None) -> None:
+        try:
+            self.__namespace = namespace
+            self.__cookies = cookies
+            if self.__cookies:
+                self.__host = f'https://{host}/pipeline'
+                self.__client = kfp.Client(host=self.__host, cookies=self.__cookies)
+            self.__host = f'{host}/pipeline'
+            self.__client = kfp.Client(host=self.__host, namespace=self.__namespace)
+        except Exception:
+            logging.error('Failed to connect to Kubeflow')
+            logging.exception(Exception)
 
     def get_all_pipelines(self, page_token: str = None) -> List[Iterable]:
         try:

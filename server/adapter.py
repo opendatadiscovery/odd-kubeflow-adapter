@@ -14,9 +14,11 @@ class KubeflowAdapter:
 
     def __init__(self, host: str, namespace: str, session_cookie0: str, session_cookie1: str) -> None:
         self.__host = host
-        self.__cookies = f"{session_cookie0};{session_cookie1}"
         self.__namespace = namespace
-        self.__api = ApiGetter(self.__host, self.__cookies, self.__namespace)
+        if session_cookie0 or session_cookie1:
+            self.__cookies = f"{session_cookie0};{session_cookie1}"
+            self.__api = ApiGetter(self.__host, self.__namespace, self.__cookies)
+        self.__api = ApiGetter(self.__host, self.__namespace)
 
     def __get_pipelines(self) -> Iterable[DataEntity]:
         all_pipelines = self.__api.get_all_pipelines()
@@ -26,10 +28,10 @@ class KubeflowAdapter:
         all_runs = self.__api.get_all_runs()
         return [self.__process_run_raw_data(run) for run in all_runs]
 
-    def __process_pipeline_raw_data(self, pipeline: Dict) -> DataEntity:
+    def __process_pipeline_raw_data(self, pipeline: Iterable) -> DataEntity:
         return map_pipelines(self.__host, pipeline)
 
-    def __process_run_raw_data(self, run: Dict) -> DataEntity:
+    def __process_run_raw_data(self, run: Iterable) -> DataEntity:
         return map_runs(self.__host, run)
 
     def retrieve_data_entities(self) -> Tuple[list, datetime]:

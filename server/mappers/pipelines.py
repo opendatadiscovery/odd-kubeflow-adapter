@@ -1,10 +1,10 @@
 import logging
 from odd_contract.models import DataEntity
-from typing import List, Iterable, Dict
+from typing import Iterable
 from mappers.oddrn import generate_pipeline_oddrn
 
 
-def map_pipelines(host: str, pipeline: Dict) -> DataEntity:
+def map_pipelines(host: str, pipeline: Iterable) -> DataEntity:
     """
     Raw pipeline example:
         {

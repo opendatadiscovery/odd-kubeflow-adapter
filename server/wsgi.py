@@ -4,6 +4,7 @@ from odd_contract import init_flask_app, init_controller
 from controllers import OpenDataDiscoveryController
 from adapter import KubeflowAdapter
 from flask import Response
+from flask_compress import Compress
 
 dictConfig(
     {
@@ -29,6 +30,7 @@ def create_app(conf):
     app = init_flask_app()
     app.config.from_object(conf)
     app.add_url_rule('/health', "healthcheck", lambda: Response(status=200))
+    Compress().init_app(app)
 
     kubeflow_adapter = KubeflowAdapter(host=app.config["KUBEFLOW_HOST"],
                                        namespace=app.config["KUBEFLOW_NAMESPACE"],
