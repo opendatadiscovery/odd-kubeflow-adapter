@@ -1,7 +1,7 @@
 import logging
 from odd_contract.models import DataEntity
-from typing import Iterable
-from mappers.oddrn import generate_pipeline_oddrn
+from typing import Iterable, List, Dict
+from mappers.oddrn import generate_pipeline_oddrn, generate_input_oddrn
 
 
 def map_pipelines(host: str, pipeline: Iterable) -> DataEntity:
@@ -32,15 +32,16 @@ def map_pipelines(host: str, pipeline: Iterable) -> DataEntity:
             'resource_references': [{'key':
                                         {'type': 'PIPELINE',
                                         'id': '45f34f06-1461-49d4-a881-251a789dacf2'},
-                                        'name': None,
-                                        'relationship': 'OWNER'}]}}
+                                    'name': None,
+                                    'relationship': 'OWNER'}]}}
     """
     pip_id = pipeline.get('id')
     name = pipeline.get('name', pip_id)
     created_at = pipeline.get('created_at').isoformat()
     resource_references = pipeline.get('default_version')['resource_references'][0]
     description = pipeline.get('description', None)
-    inputs = pipeline.get('parameters', None)
+    parameters = pipeline['parameters']
+    inputs: List[Dict] = [{i["name"]: generate_input_oddrn(i)} for i in parameters] if parameters else []
     url = pipeline.get('url', None)
 
     try:
@@ -50,13 +51,12 @@ def map_pipelines(host: str, pipeline: Iterable) -> DataEntity:
             'owner': None,
             'updated_at': None,
             'created_at': created_at,
-            # TODO check metadata component
             'metadata': resource_references or None,
             'data_transformer': {
                 'description': description,
                 'source_code_url': url,
                 'sql': None,
-                'inputs': inputs or [],
+                'inputs': inputs,
                 'outputs': [],
                 'subtype': 'DATATRANSFORMER_JOB'
             }
